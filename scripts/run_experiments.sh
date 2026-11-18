@@ -22,5 +22,5 @@ for v in fp32 fp16 dynamic int8; do
   [ -f $R/e3_mixed/tflite/model_$v.tflite ] && ev $R/e3_mixed/tflite/model_$v.tflite $D/pd_test $R/e3_mixed/eval_tflite_$v
 done
 
-python src/make_app_assets.py --model $R/e3_mixed/tflite/model_int8.tflite --calibration $R/e3_mixed/eval_pd_test/calibration.json
+python src/make_app_assets.py --model $R/e3_mixed/tflite/model_fp16.tflite --calibration $R/e3_mixed/eval_pd_test/calibration.json
 echo "Done. Metrics are in runs/*/eval_*/metrics.json"
