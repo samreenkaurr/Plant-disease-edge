@@ -58,8 +58,17 @@ pd_val set) reduced this a lot for E1 and E2, but their fitted temperatures sit 
 those fits are unreliable. E3 was better calibrated to begin with and temperature scaling changed little (0.187 to 0.183).
 The deployed temperature (2.02) was fitted on only 60 images, so treat the calibration results as indicative.
 
-Selective prediction (answer only when confidence is above a threshold): **TODO** copy the coverage and accuracy at
-thresholds 0.5 to 0.9 from `runs/e3_mixed/eval_pd_test/metrics.json` (`calibrated.selective`).
+Selective prediction was evaluated on the 54 field test images using E3's temperature-scaled probabilities.
+
+| Threshold | Images answered (of 54) | Correct when answering |
+|---|---|---|
+| 0.5 | 18 (33%) | 13 of 18 (72%) |
+| 0.6 (app setting) | 9 (17%) | 7 of 9 (78%) |
+| 0.7 | 5 (9%) | 4 of 5 (80%) |
+| 0.8 | 3 (6%) | 2 of 3 (67%) |
+| 0.9 | 2 (4%) | 1 of 2 (50%) |
+
+Accuracy on the answered images ranged from 72% (threshold 0.5, 13 of 18) to 80% (threshold 0.7, 4 of 5), above the 53.7% overall accuracy, which suggests that confidence carries some information. However, the number of answered images is small (fewer than 10 at the deployed threshold of 0.6), so the intervals are wide and the result is not conclusive. At the deployed threshold of 0.6 the app would decline 45 of 54 field images (83%), indicating that the threshold is conservative for this model. The thresholds were assessed on the test set itself, and any change to the deployed threshold should be selected on the validation set.
 
 ## 4. Compression and on-device model
 
@@ -118,6 +127,7 @@ User study: **TODO / not done**.
 7. **int8 degradation unexplained**, and the proposed cause is untested.
 8. Screening aid only, not a substitute for an agronomist. Field accuracy of about 54% is not good enough for decisions
    that matter.
+9. Selective-prediction estimates rest on 2 to 18 images per threshold.
 
 ## 8. Future work
 
