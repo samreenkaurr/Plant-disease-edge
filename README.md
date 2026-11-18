@@ -69,3 +69,10 @@ original sources and follow their licences. Results template: `docs/RESULTS_TEMP
 `python demo/server.py` serves a web page from your computer. Open the printed address in a phone browser on the same
 Wi-Fi, take a leaf photo, and see the top-3 predictions. The model runs on the computer, not the phone, so this is a
 demo interface only. On-device latency needs the Flutter app (`app/`) on a real phone.
+
+## Results at a glance
+Lab accuracy is about 99%, but field accuracy is much lower (see `docs/RESULTS.md`). Raw metrics are in `docs/metrics/`.
+
+![Grad-CAM, lab-only baseline (E1) vs field-trained model (E3)](figures/gradcam_e1_vs_e3.png)
+![Confusion matrix of the E3 model on field images](figures/confusion_e3_field.png)
+![Phone demo](figures/demo_screenshot.jpg)
