@@ -65,3 +65,7 @@ compression) 5. Evaluation protocol (splits, metrics, calibration) 6. Results an
 ## Licence and data
 Code is released under the MIT licence (see `LICENSE`). The datasets are **not** included; download them from their
 original sources and follow their licences. Results template: `docs/RESULTS_TEMPLATE.md`.
+## Phone demo (no Xcode needed)
+`python demo/server.py` serves a web page from your computer. Open the printed address in a phone browser on the same
+Wi-Fi, take a leaf photo, and see the top-3 predictions. The model runs on the computer, not the phone, so this is a
+demo interface only. On-device latency needs the Flutter app (`app/`) on a real phone.
