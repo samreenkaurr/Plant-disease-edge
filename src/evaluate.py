@@ -14,7 +14,12 @@ def predict_probs(model_path, data_dir):
     ds = load_dir(data_dir, batch_size=32, shuffle=False)
     y = np.concatenate([lab.numpy() for _, lab in ds])
     if str(model_path).endswith(".tflite"):
-        it = tf.lite.Interpreter(model_path=str(model_path)); it.allocate_tensors()
+        try:
+            it = tf.lite.Interpreter(model_path=str(model_path)); it.allocate_tensors()
+        except RuntimeError:  # XNNPACK can fail to prepare some variants; fall back to plain kernels
+            it = tf.lite.Interpreter(model_path=str(model_path),
+                experimental_op_resolver_type=tf.lite.experimental.OpResolverType.BUILTIN_WITHOUT_DEFAULT_DELEGATES)
+            it.allocate_tensors()
         i_in, i_out = it.get_input_details()[0]["index"], it.get_output_details()[0]["index"]
         probs = []
         for xb, _ in ds:
