@@ -77,7 +77,7 @@ The datasets are **not** included. Download them from their sources and follow t
 - **PlantVillage**: Hughes and Salathe (2015), arXiv:1511.08060; Mohanty, Hughes and Salathe (2016), Frontiers in Plant Science. Source: https://github.com/spMohanty/PlantVillage-Dataset
 - **PlantDoc** (CC BY 4.0): Singh, Jain, Jain, Kayal, Kumawat and Batra, "PlantDoc: A Dataset for Visual Plant Disease Detection", CoDS-COMAD 2020. Source: https://github.com/pratikkayal/PlantDoc-Dataset
 
-Please check the exact citation details against the original papers before citing them. The Grad-CAM figure contains PlantDoc photos.
+The Grad-CAM figure contains PlantDoc photos.
 
 ## Licence
 Code is released under the MIT licence (see `LICENSE`).
