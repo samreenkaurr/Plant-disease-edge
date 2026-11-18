@@ -1,0 +1,18 @@
+name: plant_doctor
+description: Offline plant disease screening with an on-device TFLite model.
+publish_to: none
+version: 1.0.0+1
+environment:
+  sdk: ">=3.3.0 <4.0.0"
+dependencies:
+  flutter:
+    sdk: flutter
+  tflite_flutter: ^0.11.0
+  image_picker: ^1.1.2
+  image: ^4.2.0
+flutter:
+  uses-material-design: true
+  assets:
+    - assets/model.tflite
+    - assets/labels.txt
+    - assets/calibration.json

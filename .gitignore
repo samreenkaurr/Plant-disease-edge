@@ -1,0 +1,25 @@
+# data and training outputs
+data/
+runs/
+*.keras
+*.h5
+*.npz
+
+# python
+__pycache__/
+*.pyc
+.venv/
+venv/
+.pytest_cache/
+
+# flutter (the generated platform project is not tracked here)
+plant_doctor/
+.dart_tool/
+build/
+.flutter-plugins*
+.packages
+
+# os / editor
+.DS_Store
+.idea/
+.vscode/
