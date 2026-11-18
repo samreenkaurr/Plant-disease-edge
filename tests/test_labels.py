@@ -13,7 +13,7 @@ def test_plantdoc_names():
     assert m("Tomato leaf late blight") == "tomato_late_blight"
     assert m("Tomato leaf") == "tomato_healthy"
     assert m("Potato leaf early blight") == "potato_early_blight"
-    assert m("Potato leaf") == "potato_healthy"
+    assert m("Potato leaf") is None
 
 def test_unmapped():
     assert m("Tomato___Bacterial_spot") is None

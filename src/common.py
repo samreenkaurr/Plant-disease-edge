@@ -5,7 +5,7 @@ from pathlib import Path
 IMG_SIZE = 224
 # Classes present in BOTH PlantVillage and PlantDoc (tomato + potato).
 LABELS = [
-    "potato_early_blight", "potato_healthy", "potato_late_blight",
+    "potato_early_blight", "potato_late_blight",
     "tomato_early_blight", "tomato_healthy", "tomato_late_blight",
     "tomato_septoria_leaf_spot",
 ]

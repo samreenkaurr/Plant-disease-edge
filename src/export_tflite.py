@@ -1,44 +1,60 @@
-"""Export fp32 / fp16 / dynamic-range / full-int8 TFLite variants (float I/O) and report sizes.
+"""Export fp32 / fp16 / dynamic / int8 TFLite variants (float I/O) and report sizes.
+Each variant converts in its own subprocess, because the TFLite converter can hard-crash
+(LLVM abort) and would otherwise kill the whole run.
 python src/export_tflite.py --model runs/e3/model.keras --calib-dir data/unified/pd_train --out runs/e3/tflite
 """
-import argparse, json
+import argparse, json, subprocess, sys, tempfile
 from pathlib import Path
-import tensorflow as tf
-from common import load_dir
 
 
-def convert(model, variant, rep=None):
-    c = tf.lite.TFLiteConverter.from_keras_model(model)
+def worker(saved_dir, variant, calib_dir, n_calib, out_file):
+    import tensorflow as tf
+    from common import load_dir
+    c = tf.lite.TFLiteConverter.from_saved_model(saved_dir)
     if variant == "fp16":
-        c.optimizations = [tf.lite.Optimize.DEFAULT]; c.target_spec.supported_types = [tf.float16]
+        c.optimizations = [tf.lite.Optimize.DEFAULT]
+        c.target_spec.supported_types = [tf.float16]
     elif variant == "dynamic":
         c.optimizations = [tf.lite.Optimize.DEFAULT]
     elif variant == "int8":
-        c.optimizations = [tf.lite.Optimize.DEFAULT]; c.representative_dataset = rep
+        ds = load_dir(calib_dir, batch_size=None, shuffle=True, seed=1).take(int(n_calib))
+
+        def rep():
+            for x, _ in ds:
+                yield [tf.cast(x, tf.float32)[None]]
+
+        c.optimizations = [tf.lite.Optimize.DEFAULT]
+        c.representative_dataset = rep
         c.target_spec.supported_ops = [tf.lite.OpsSet.TFLITE_BUILTINS_INT8]
-    return c.convert()
+    Path(out_file).write_bytes(c.convert())
 
 
 if __name__ == "__main__":
-    ap = argparse.ArgumentParser()
-    ap.add_argument("--model", required=True); ap.add_argument("--calib-dir", required=True)
-    ap.add_argument("--out", required=True); ap.add_argument("--n-calib", type=int, default=200)
-    a = ap.parse_args()
-    out = Path(a.out); out.mkdir(parents=True, exist_ok=True)
-    model = tf.keras.models.load_model(a.model)
-    ds = load_dir(a.calib_dir, batch_size=None, shuffle=True, seed=1).take(a.n_calib)
+    if len(sys.argv) > 1 and sys.argv[1] == "--worker":
+        worker(*sys.argv[2:7])
+        sys.exit(0)
 
-    def rep():
-        for x, _ in ds:
-            yield [tf.cast(x, tf.float32)[None]]
+    ap = argparse.ArgumentParser()
+    ap.add_argument("--model", required=True)
+    ap.add_argument("--calib-dir", required=True)
+    ap.add_argument("--out", required=True)
+    ap.add_argument("--n-calib", type=int, default=200)
+    a = ap.parse_args()
+    out = Path(a.out)
+    out.mkdir(parents=True, exist_ok=True)
+
+    import tensorflow as tf
+    model = tf.keras.models.load_model(a.model)
+    saved = tempfile.mkdtemp(prefix="saved_model_")
+    model.export(saved)
 
     sizes = {}
     for v in ["fp32", "fp16", "dynamic", "int8"]:
-        try:
-            blob = convert(model, v, rep)
-            (out / f"model_{v}.tflite").write_bytes(blob)
-            sizes[v] = round(len(blob) / 1e6, 3)
+        dst = out / f"model_{v}.tflite"
+        r = subprocess.run([sys.executable, __file__, "--worker", saved, v, a.calib_dir, str(a.n_calib), str(dst)])
+        if r.returncode == 0 and dst.exists():
+            sizes[v] = round(dst.stat().st_size / 1e6, 3)
             print(f"{v:8s} {sizes[v]} MB")
-        except Exception as e:  # keep going if one variant is unsupported by your TF version
-            print(f"{v} failed: {e}")
+        else:
+            print(f"{v:8s} FAILED (converter exit code {r.returncode})")
     (out / "sizes_mb.json").write_text(json.dumps(sizes, indent=2))
